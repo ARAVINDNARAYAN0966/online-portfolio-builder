@@ -1,3 +1,96 @@
 {
-  "users": []
+  "users": [
+    {
+      "id": "sample-1",
+      "username": "alexdesign",
+      "email": "alex@example.com",
+      "password": "$2a$10$TXZs9a9Kx/T0F0uM6X0MGeX0uM6X0MGeX0uM6X0MGeX0uM6X0MGe",
+      "mobile": "+1 (555) 123-4567",
+      "address": "San Francisco, CA",
+      "linkedin": "https://linkedin.com/in/alexdesign",
+      "github": "https://github.com/alexdesign",
+      "portfolio": {
+        "industry": "Design",
+        "service": "UI/UX Design",
+        "bio": "I craft vibrant, user-centric interfaces that breathe life into digital products. With 5 years of experience building scalable design systems, my focus is on seamless user journeys.",
+        "skills": [
+          "Figma",
+          "Webflow",
+          "Prototyping",
+          "Design Systems"
+        ],
+        "colorTheme": "purple",
+        "avatar": "https://i.pravatar.cc/150?img=47"
+      }
+    },
+    {
+      "id": "sample-2",
+      "username": "samdev",
+      "email": "sam@example.com",
+      "password": "$2a$10$TXZs9a9Kx/T0F0uM6X0MGeX0uM6X0MGeX0uM6X0MGeX0uM6X0MGe",
+      "mobile": "+44 7700 900077",
+      "address": "London, UK",
+      "linkedin": "https://linkedin.com/in/samdev",
+      "github": "https://github.com/samdev",
+      "portfolio": {
+        "industry": "Development",
+        "service": "Full-Stack Web",
+        "bio": "Building lightning-fast, modern web applications from the ground up. I specialize in the MERN stack and love turning complex problems into elegant code.",
+        "skills": [
+          "React",
+          "Node.js",
+          "MongoDB",
+          "Tailwind CSS"
+        ],
+        "colorTheme": "blue",
+        "avatar": "https://i.pravatar.cc/150?img=11"
+      }
+    },
+    {
+      "id": "sample-3",
+      "username": "marcusgrowth",
+      "email": "marcus@example.com",
+      "password": "$2a$10$TXZs9a9Kx/T0F0uM6X0MGeX0uM6X0MGeX0uM6X0MGeX0uM6X0MGe",
+      "mobile": "+61 400 123 456",
+      "address": "Sydney, AUS",
+      "linkedin": "https://linkedin.com/in/marcusgrowth",
+      "github": "",
+      "portfolio": {
+        "industry": "Marketing",
+        "service": "Social Media",
+        "bio": "Helping bold brands find their unique voice in the crowded digital space. From viral TikTok campaigns to data-driven SEO strategies, I drive growth.",
+        "skills": [
+          "Content Strategy",
+          "SEO",
+          "Copywriting",
+          "Analytics"
+        ],
+        "colorTheme": "orange",
+        "avatar": "https://i.pravatar.cc/150?img=33"
+      }
+    },
+    {
+      "id": "sample-4",
+      "username": "elenadraws",
+      "email": "elena@example.com",
+      "password": "$2a$10$TXZs9a9Kx/T0F0uM6X0MGeX0uM6X0MGeX0uM6X0MGeX0uM6X0MGe",
+      "mobile": "+34 600 12 34 56",
+      "address": "Barcelona, Spain",
+      "linkedin": "",
+      "github": "",
+      "portfolio": {
+        "industry": "Design",
+        "service": "Illustration",
+        "bio": "Bringing ideas to life with vibrant, whimsical, and culturally rich illustrations. I've illustrated for editorial magazines and children's books.",
+        "skills": [
+          "Adobe Illustrator",
+          "Procreate",
+          "Branding",
+          "Storyboarding"
+        ],
+        "colorTheme": "green",
+        "avatar": "https://i.pravatar.cc/150?img=5"
+      }
+    }
+  ]
 }
