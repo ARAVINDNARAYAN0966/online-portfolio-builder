@@ -41,4 +41,4 @@ A vibrant, dynamic web platform designed for freelancers and creators to build, 
    ```
 
 4. **View the site:**
-   Open your web browser and navigate to `http://localhost:3000`.
+   Open your web browser and navigate to ` https://online-portfolio-builder-7xmq.onrender.com`.
