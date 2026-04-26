@@ -1,32 +1,26 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs/promises');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+
+// Import Model
+const User = require('./models/User');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DB_FILE = path.join(__dirname, 'database.json');
-const JWT_SECRET = 'supersecretkey_for_student_project';
+const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey_for_student_project';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/creatorport';
+
+// Connect to MongoDB
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
-// DB Helpers
-async function readDB() {
-    try {
-        const data = await fs.readFile(DB_FILE, 'utf8');
-        return JSON.parse(data);
-    } catch (err) {
-        return { users: [] };
-    }
-}
-
-async function writeDB(data) {
-    await fs.writeFile(DB_FILE, JSON.stringify(data, null, 2));
-}
 
 // Auth Middleware
 function authenticateToken(req, res, next) {
@@ -41,37 +35,31 @@ function authenticateToken(req, res, next) {
     });
 }
 
-// Routes
+// ---------------- API ROUTES ----------------
 
 // 1. Register
 app.post('/api/auth/register', async (req, res) => {
     try {
         const { username, email, password } = req.body;
-        const db = await readDB();
         
-        if (db.users.find(u => u.username === username || u.email === email)) {
+        const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+        if (existingUser) {
             return res.status(400).json({ error: 'User already exists' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = {
-            id: Date.now().toString(),
+        const newUser = new User({
             username,
             email,
-            password: hashedPassword,
-            mobile: '',
-            address: '',
-            linkedin: '',
-            github: '',
-            portfolio: null
-        };
+            password: hashedPassword
+        });
 
-        db.users.push(newUser);
-        await writeDB(db);
+        await newUser.save();
 
-        const token = jwt.sign({ id: newUser.id, username: newUser.username }, JWT_SECRET);
+        const token = jwt.sign({ id: newUser._id, username: newUser.username }, JWT_SECRET);
         res.status(201).json({ token });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ error: 'Server error' });
     }
 });
@@ -80,15 +68,14 @@ app.post('/api/auth/register', async (req, res) => {
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { username, password } = req.body;
-        const db = await readDB();
         
-        const user = db.users.find(u => u.username === username);
+        const user = await User.findOne({ username });
         if (!user) return res.status(400).json({ error: 'User not found' });
 
         const validPassword = await bcrypt.compare(password, user.password);
         if (!validPassword) return res.status(400).json({ error: 'Invalid password' });
 
-        const token = jwt.sign({ id: user.id, username: user.username }, JWT_SECRET);
+        const token = jwt.sign({ id: user._id, username: user.username }, JWT_SECRET);
         res.json({ token });
     } catch (err) {
         res.status(500).json({ error: 'Server error' });
@@ -97,33 +84,27 @@ app.post('/api/auth/login', async (req, res) => {
 
 // 3. Get Profile (Protected)
 app.get('/api/profile', authenticateToken, async (req, res) => {
-    const db = await readDB();
-    const user = db.users.find(u => u.id === req.user.id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    
-    const { password, ...profileData } = user; // exclude password
-    res.json(profileData);
+    try {
+        const user = await User.findById(req.user.id).select('-password');
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
 });
 
 // 4. Update Profile (Protected)
 app.put('/api/profile', authenticateToken, async (req, res) => {
     try {
-        const { mobile, address, linkedin, github } = req.body;
-        const db = await readDB();
-        const userIndex = db.users.findIndex(u => u.id === req.user.id);
+        const { mobile, address, linkedin, github, website } = req.body;
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            { mobile, address, linkedin, github, website },
+            { new: true }
+        ).select('-password');
         
-        if (userIndex === -1) return res.status(404).json({ error: 'User not found' });
-
-        db.users[userIndex] = {
-            ...db.users[userIndex],
-            mobile: mobile !== undefined ? mobile : db.users[userIndex].mobile,
-            address: address !== undefined ? address : db.users[userIndex].address,
-            linkedin: linkedin !== undefined ? linkedin : db.users[userIndex].linkedin,
-            github: github !== undefined ? github : db.users[userIndex].github
-        };
-
-        await writeDB(db);
-        res.json({ message: 'Profile updated successfully' });
+        if (!user) return res.status(404).json({ error: 'User not found' });
+        res.json({ message: 'Profile updated successfully', user });
     } catch (err) {
         res.status(500).json({ error: 'Server error' });
     }
@@ -133,54 +114,81 @@ app.put('/api/profile', authenticateToken, async (req, res) => {
 app.put('/api/portfolio', authenticateToken, async (req, res) => {
     try {
         const portfolioData = req.body;
-        const db = await readDB();
-        const userIndex = db.users.findIndex(u => u.id === req.user.id);
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        user.portfolio = { ...user.portfolio?.toObject(), ...portfolioData };
+        await user.save();
         
-        if (userIndex === -1) return res.status(404).json({ error: 'User not found' });
-
-        db.users[userIndex].portfolio = {
-            ...db.users[userIndex].portfolio,
-            ...portfolioData
-        };
-
-        await writeDB(db);
-        res.json({ message: 'Portfolio updated successfully', portfolio: db.users[userIndex].portfolio });
+        res.json({ message: 'Portfolio updated successfully', portfolio: user.portfolio });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ error: 'Server error' });
     }
 });
 
-// 6. Get All Published Portfolios (Public)
+// 6. Get All Published Portfolios (Public) - with Filters & Search
 app.get('/api/portfolios', async (req, res) => {
     try {
-        const db = await readDB();
-        // Return only users that have a portfolio published
-        let freelancers = db.users
-            .filter(u => u.portfolio !== null)
-            .map(u => ({
-                id: u.id,
-                name: u.username,
-                email: u.email,
-                mobile: u.mobile,
-                linkedin: u.linkedin,
-                github: u.github,
-                ...u.portfolio
-            }));
+        const { industry, service, search } = req.query;
+        let query = { portfolio: { $exists: true, $ne: null } };
+        
+        if (industry) query['portfolio.industry'] = new RegExp(`^${industry}$`, 'i');
+        if (service) query['portfolio.service'] = new RegExp(`^${service}$`, 'i');
+        
+        if (search) {
+            const searchRegex = new RegExp(search, 'i');
+            query.$or = [
+                { username: searchRegex },
+                { 'portfolio.skills': searchRegex },
+                { 'portfolio.service': searchRegex }
+            ];
+        }
 
-        const { industry, service } = req.query;
-        if (industry) {
-            freelancers = freelancers.filter(f => f.industry && f.industry.toLowerCase() === industry.toLowerCase());
-        }
-        if (service) {
-            freelancers = freelancers.filter(f => f.service && f.service.toLowerCase() === service.toLowerCase());
-        }
+        const users = await User.find(query).select('-password');
+        
+        // Map to flat structure for easier frontend consumption
+        const freelancers = users.map(u => ({
+            id: u._id,
+            name: u.username,
+            email: u.email,
+            mobile: u.mobile,
+            linkedin: u.linkedin,
+            github: u.github,
+            website: u.website,
+            ...u.portfolio.toObject()
+        }));
 
         res.json(freelancers);
     } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error fetching portfolios' });
+    }
+});
+
+// 7. Get Single Portfolio Detail (Public)
+app.get('/api/portfolios/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id).select('-password');
+        if (!user || !user.portfolio) return res.status(404).json({ error: 'Portfolio not found' });
+        
+        res.json(user);
+    } catch (err) {
         res.status(500).json({ error: 'Server error' });
     }
 });
 
+// ---------------- STATIC FILE SERVING FOR REACT ----------------
+
+// Serve static React build files
+app.use(express.static(path.join(__dirname, 'client/dist')));
+
+// CATCH-ALL ROUTE: Send all non-API requests to the React app
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/dist', 'index.html'));
+});
+
+// Start Server
 app.listen(PORT, () => {
     console.log(`Server is running beautifully on http://localhost:${PORT}`);
 });
