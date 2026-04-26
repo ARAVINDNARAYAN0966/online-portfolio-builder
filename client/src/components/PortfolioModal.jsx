@@ -74,10 +74,10 @@ export default function PortfolioModal({ activeModal, closeModal }) {
                 <option value="Design">Design</option>
                 <option value="Development">Development</option>
                 <option value="Marketing">Marketing</option>
-                <option value="Writing">Writing & Content</option>
-                <option value="Video">Video Production</option>
-                <option value="Audio">Audio & Music</option>
-                <option value="Data">Data Science</option>
+                <option value="Writing & Content">Writing & Content</option>
+                <option value="Video Production">Video Production</option>
+                <option value="Audio & Music">Audio & Music</option>
+                <option value="Data Science">Data Science</option>
                 <option value="Consulting">Consulting</option>
                 <option value="Other">Other</option>
               </select>

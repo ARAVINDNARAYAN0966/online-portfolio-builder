@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
 export default function Sidebar({ filters, setFilters }) {
-  const industries = ['Design', 'Development', 'Marketing', 'Writing', 'Video', 'Audio', 'Data', 'Consulting', 'Other'];
+  const industries = ['Design', 'Development', 'Marketing', 'Writing & Content', 'Video Production', 'Audio & Music', 'Data Science', 'Consulting', 'Other'];
   const services = ['UI/UX Design', 'Full-Stack Web', 'Social Media', 'Illustration'];
 
   const handleFilter = (type, value) => {
