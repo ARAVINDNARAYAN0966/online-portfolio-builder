@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
 export default function Sidebar({ filters, setFilters }) {
-  const industries = ['Design', 'Development', 'Marketing', 'Writing & Content', 'Video Production', 'Audio & Music', 'Data Science', 'Consulting', 'Other'];
+  const industries = ['Design', 'Development', 'Marketing'];
 
   const handleFilter = (type, value) => {
     setFilters(prev => ({ ...prev, [type]: value }));
