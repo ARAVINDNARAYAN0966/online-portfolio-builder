@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 
 export default function Sidebar({ filters, setFilters }) {
   const industries = ['Design', 'Development', 'Marketing', 'Writing & Content', 'Video Production', 'Audio & Music', 'Data Science', 'Consulting', 'Other'];
-  const services = ['UI/UX Design', 'Full-Stack Web', 'Social Media', 'Illustration'];
 
   const handleFilter = (type, value) => {
     setFilters(prev => ({ ...prev, [type]: value }));
@@ -31,22 +30,6 @@ export default function Sidebar({ filters, setFilters }) {
         </ul>
       </div>
 
-      <div className="filter-section">
-        <h3>Services</h3>
-        <ul className="filter-list">
-          <li 
-            className={filters.service === '' ? 'active' : ''}
-            onClick={() => handleFilter('service', '')}
-          >Any Service</li>
-          {services.map(srv => (
-            <li 
-              key={srv}
-              className={filters.service === srv ? 'active' : ''}
-              onClick={() => handleFilter('service', srv)}
-            >{srv}</li>
-          ))}
-        </ul>
-      </div>
     </aside>
   );
 }
