@@ -175,7 +175,12 @@ app.post('/api/auth/login', async (req, res) => {
 app.use(express.static(path.join(__dirname, "client/dist")));
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, "client/dist/index.html"));
+  const indexPath = path.resolve(__dirname, "client", "dist", "index.html");
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      res.status(500).send(`Deployment Error: Cannot find index.html at ${indexPath}`);
+    }
+  });
 });
 
 app.listen(PORT, () => {
