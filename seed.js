@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/creator-marketplace';
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/creator-marketplace';
 
 const seedData = async () => {
   try {

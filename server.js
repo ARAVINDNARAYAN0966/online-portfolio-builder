@@ -1,11 +1,9 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('./models/User');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,10 +12,11 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/creator-marketplace')
-  .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+// In-Memory Database
+let users = [];
+
+// Helper to generate unique IDs
+const generateId = () => Math.random().toString(36).substr(2, 9);
 
 // Auth Middleware
 const auth = (req, res, next) => {
@@ -36,52 +35,61 @@ const auth = (req, res, next) => {
 // API Routes
 
 // Get all published portfolios for the Home page
-app.get('/api/portfolios', async (req, res) => {
+app.get('/api/portfolios', (req, res) => {
   try {
-    const users = await User.find({ 'portfolio.isPublished': true }).select('-password');
-    res.json(users);
+    const publishedUsers = users
+      .filter(user => user.portfolio && user.portfolio.isPublished)
+      .map(({ password, ...userWithoutPassword }) => userWithoutPassword);
+    
+    res.json(publishedUsers);
   } catch (error) {
     res.status(500).json({ error: 'Server error fetching portfolios' });
   }
 });
 
 // Get current user's profile
-app.get('/api/auth/me', auth, async (req, res) => {
+app.get('/api/auth/me', auth, (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
-    res.json(user);
+    const user = users.find(u => u.id === req.user.id);
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+    
+    const { password, ...userWithoutPassword } = user;
+    res.json(userWithoutPassword);
   } catch (error) {
     res.status(500).json({ error: 'Server error' });
   }
 });
 
 // Update Profile
-app.put('/api/users/profile', auth, async (req, res) => {
+app.put('/api/users/profile', auth, (req, res) => {
   try {
     const { mobile, address, linkedin, github } = req.body;
     
-    let user = await User.findById(req.user.id);
-    if (!user) return res.status(404).json({ msg: 'User not found' });
+    const userIndex = users.findIndex(u => u.id === req.user.id);
+    if (userIndex === -1) return res.status(404).json({ msg: 'User not found' });
 
-    user.mobile = mobile || user.mobile;
-    user.address = address || user.address;
-    user.linkedin = linkedin || user.linkedin;
-    user.github = github || user.github;
+    users[userIndex] = {
+      ...users[userIndex],
+      mobile: mobile || users[userIndex].mobile,
+      address: address || users[userIndex].address,
+      linkedin: linkedin || users[userIndex].linkedin,
+      github: github || users[userIndex].github
+    };
 
-    await user.save();
-    res.json(user);
+    const { password, ...updatedUser } = users[userIndex];
+    res.json(updatedUser);
   } catch (error) {
     res.status(500).json({ error: 'Server error updating profile' });
   }
 });
 
 // Update Portfolio
-app.put('/api/users/portfolio', auth, async (req, res) => {
+app.put('/api/users/portfolio', auth, (req, res) => {
   try {
     const { industry, service, bio, skills, colorTheme, country } = req.body;
     
-    let user = await User.findById(req.user.id);
-    if (!user) return res.status(404).json({ msg: 'User not found' });
+    const userIndex = users.findIndex(u => u.id === req.user.id);
+    if (userIndex === -1) return res.status(404).json({ msg: 'User not found' });
 
     // Handle string to array conversion for skills if needed
     let skillsArray = skills;
@@ -89,20 +97,20 @@ app.put('/api/users/portfolio', auth, async (req, res) => {
       skillsArray = skills.split(',').map(skill => skill.trim()).filter(skill => skill);
     }
 
-    user.portfolio = {
-      ...user.portfolio,
-      industry: industry || user.portfolio?.industry,
-      service: service || user.portfolio?.service,
-      bio: bio || user.portfolio?.bio,
-      skills: skillsArray || user.portfolio?.skills,
-      colorTheme: colorTheme || user.portfolio?.colorTheme || 'Purple',
-      country: country || user.portfolio?.country,
+    users[userIndex].portfolio = {
+      ...users[userIndex].portfolio,
+      industry: industry || users[userIndex].portfolio?.industry,
+      service: service || users[userIndex].portfolio?.service,
+      bio: bio || users[userIndex].portfolio?.bio,
+      skills: skillsArray || users[userIndex].portfolio?.skills,
+      colorTheme: colorTheme || users[userIndex].portfolio?.colorTheme || 'Purple',
+      country: country || users[userIndex].portfolio?.country,
       isPublished: true,
-      avatar: user.portfolio?.avatar || `https://i.pravatar.cc/150?u=${user.id}`
+      avatar: users[userIndex].portfolio?.avatar || `https://i.pravatar.cc/150?u=${users[userIndex].id}`
     };
 
-    await user.save();
-    res.json(user);
+    const { password, ...updatedUser } = users[userIndex];
+    res.json(updatedUser);
   } catch (error) {
     res.status(500).json({ error: 'Server error updating portfolio' });
   }
@@ -125,27 +133,28 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ error: 'Password must be at least 8 characters long, contain an uppercase letter, a lowercase letter, a number, and a special character.' });
     }
 
-    let user = await User.findOne({ email });
-    if (user) return res.status(400).json({ error: 'User already exists' });
+    let existingEmail = users.find(u => u.email === email);
+    if (existingEmail) return res.status(400).json({ error: 'User already exists' });
     
-    user = await User.findOne({ username });
-    if (user) return res.status(400).json({ error: 'Username already taken' });
+    let existingUsername = users.find(u => u.username === username);
+    if (existingUsername) return res.status(400).json({ error: 'Username already taken' });
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    user = new User({
+    const newUser = {
+      id: generateId(),
       username,
       email,
       password: hashedPassword
-    });
+    };
 
-    await user.save();
+    users.push(newUser);
 
-    const payload = { user: { id: user.id } };
+    const payload = { user: { id: newUser.id } };
     const token = jwt.sign(payload, process.env.JWT_SECRET || 'secret123', { expiresIn: '1h' });
 
-    res.json({ token, user: { id: user.id, username: user.username, email: user.email } });
+    res.json({ token, user: { id: newUser.id, username: newUser.username, email: newUser.email } });
   } catch (err) {
     res.status(500).json({ error: 'Server error' });
   }
@@ -153,10 +162,10 @@ app.post('/api/auth/register', async (req, res) => {
 
 app.post('/api/auth/login', async (req, res) => {
   try {
-    const { username, password } = req.body; // Screenshot shows "Username" for login
+    const { username, password } = req.body; 
 
     // Allow login by either email or username
-    const user = await User.findOne({ $or: [{ email: username }, { username: username }] });
+    const user = users.find(u => u.email === username || u.username === username);
     if (!user) return res.status(400).json({ error: 'Invalid Credentials' });
 
     const isMatch = await bcrypt.compare(password, user.password);
