@@ -12,8 +12,13 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// In-Memory Database
+// In-Memory Database initialized with sample portfolios
 let users = [];
+try {
+  users = [...require('./data/users.json')];
+} catch (err) {
+  console.log("No sample data found, starting empty");
+}
 
 // Helper to generate unique IDs
 const generateId = () => Math.random().toString(36).substr(2, 9);
