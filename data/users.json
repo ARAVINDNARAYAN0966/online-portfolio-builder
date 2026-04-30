@@ -5,6 +5,8 @@
     "email": "alex@example.com",
     "password": "$2a$10$wN9M.Q4G4t8A7kU9kI9R9e3u0/3C0P0l0l0l0l0l0l0l0l0l0l0lO", 
     "mobile": "+1 (555) 123-4567",
+    "linkedin": "https://linkedin.com/in/alexdesign",
+    "github": "https://github.com/alexdesign",
     "portfolio": {
       "industry": "DESIGN",
       "service": "UI/UX DESIGN",
@@ -22,6 +24,8 @@
     "email": "sam@example.com",
     "password": "$2a$10$wN9M.Q4G4t8A7kU9kI9R9e3u0/3C0P0l0l0l0l0l0l0l0l0l0l0lO",
     "mobile": "+44 7700 900077",
+    "linkedin": "https://linkedin.com/in/samdev",
+    "github": "https://github.com/samdev",
     "portfolio": {
       "industry": "DEVELOPMENT",
       "service": "FULL-STACK WEB",
@@ -39,6 +43,8 @@
     "email": "marcus@example.com",
     "password": "$2a$10$wN9M.Q4G4t8A7kU9kI9R9e3u0/3C0P0l0l0l0l0l0l0l0l0l0l0lO",
     "mobile": "+61 400 123 456",
+    "linkedin": "https://linkedin.com/in/marcusgrowth",
+    "github": "",
     "portfolio": {
       "industry": "MARKETING",
       "service": "SOCIAL MEDIA",
@@ -55,6 +61,8 @@
     "username": "sarahwrites",
     "email": "sarah@example.com",
     "password": "$2a$10$wN9M.Q4G4t8A7kU9kI9R9e3u0/3C0P0l0l0l0l0l0l0l0l0l0l0lO",
+    "linkedin": "https://linkedin.com/in/sarahwrites",
+    "github": "",
     "portfolio": {
       "industry": "WRITING",
       "service": "COPYWRITING",
@@ -71,6 +79,8 @@
     "username": "chrisvideo",
     "email": "chris@example.com",
     "password": "$2a$10$wN9M.Q4G4t8A7kU9kI9R9e3u0/3C0P0l0l0l0l0l0l0l0l0l0l0lO",
+    "linkedin": "https://linkedin.com/in/chrisvideo",
+    "github": "",
     "portfolio": {
       "industry": "VIDEO PRODUCTION",
       "service": "MOTION GRAPHICS",
@@ -87,6 +97,8 @@
     "username": "emilyaudio",
     "email": "emily@example.com",
     "password": "$2a$10$wN9M.Q4G4t8A7kU9kI9R9e3u0/3C0P0l0l0l0l0l0l0l0l0l0l0lO",
+    "linkedin": "https://linkedin.com/in/emilyaudio",
+    "github": "",
     "portfolio": {
       "industry": "AUDIO & MUSIC",
       "service": "SOUND DESIGN",
@@ -103,6 +115,8 @@
     "username": "datadan",
     "email": "dan@example.com",
     "password": "$2a$10$wN9M.Q4G4t8A7kU9kI9R9e3u0/3C0P0l0l0l0l0l0l0l0l0l0l0lO",
+    "linkedin": "https://linkedin.com/in/datadan",
+    "github": "https://github.com/datadan",
     "portfolio": {
       "industry": "DATA SCIENCE",
       "service": "MACHINE LEARNING",
@@ -119,6 +133,8 @@
     "username": "jessicaconsults",
     "email": "jessica@example.com",
     "password": "$2a$10$wN9M.Q4G4t8A7kU9kI9R9e3u0/3C0P0l0l0l0l0l0l0l0l0l0l0lO",
+    "linkedin": "https://linkedin.com/in/jessicaconsults",
+    "github": "",
     "portfolio": {
       "industry": "CONSULTING",
       "service": "BUSINESS STRATEGY",
@@ -135,6 +151,8 @@
     "username": "mikeother",
     "email": "mike@example.com",
     "password": "$2a$10$wN9M.Q4G4t8A7kU9kI9R9e3u0/3C0P0l0l0l0l0l0l0l0l0l0l0lO",
+    "linkedin": "https://linkedin.com/in/mikeother",
+    "github": "",
     "portfolio": {
       "industry": "OTHER",
       "service": "3D MODELING",
