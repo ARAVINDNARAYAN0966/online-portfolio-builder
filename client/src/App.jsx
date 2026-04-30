@@ -16,12 +16,12 @@ function Sidebar({ selectedIndustry, setSelectedIndustry }) {
 
   return (
     <aside className="sidebar">
-      <Link to="/" style={{textDecoration: 'none'}} onClick={() => setSelectedIndustry('All Industries')}>
+      <a href="/" style={{textDecoration: 'none'}} onClick={() => setSelectedIndustry('All Industries')}>
         <div className="brand">
           <Sparkles size={24} />
           CreatorPort
         </div>
-      </Link>
+      </a>
 
       <div className="sidebar-section">
         <div className="sidebar-title">Filter by Industry</div>
